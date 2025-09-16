@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 # Local libraries
 from ariel.utils.renderers import video_renderer
+from ariel.utils.runners import simple_runner
 from ariel.utils.video_recorder import VideoRecorder
 from ariel.simulation.environments.simple_flat_world import SimpleFlatWorld
 
@@ -14,7 +15,31 @@ from ariel.body_phenotypes.robogen_lite.prebuilt_robots.gecko import gecko
 
 # Keep track of data / history
 HISTORY = []
-
+def controller(model,data,to_track):
+    def sigmoid(x):
+        return 1.0 / (1.0 + np.exp(-x))
+    
+    #simple 3 layer neural network
+    input_size = len(data.qpos.copy())
+    hidden_size = 8
+    output_size = model.nu
+    
+    w1 = np.random.randn(input_size,hidden_size)*0.1
+    w2 = np.random.randn(hidden_size,hidden_size)*0.1
+    w3 = np.random.randn(hidden_size,output_size)*0.1
+    
+    #foward pass
+    inputs = data.qpos.copy()
+    layer1 = sigmoid(np.dot(inputs,w1))
+    layer2 = sigmoid(np.dot(layer1,w2))
+    outputs = sigmoid(np.dot(layer2,w3))
+    
+    #scale outputs from [0,1] to [-np.pi/2, np.pi/2]
+    data.ctrl += ((outputs*np.pi)-np.pi/2) *0.1
+    # Save movement to history
+    HISTORY.append(to_track[0].xpos.copy())
+    
+    
 def random_move(model, data, to_track) -> None:
     """Generate random movements for the robot's joints.
     
@@ -128,7 +153,7 @@ def main():
 
     # Set the control callback function
     # This is called every time step to get the next action. 
-    mujoco.set_mjcb_control(lambda m,d: random_move(m, d, to_track))
+    mujoco.set_mjcb_control(lambda m,d: controller(m, d, to_track))
 
     # This opens a viewer window and runs the simulation with the controller you defined
     # If mujoco.set_mjcb_control(None), then you can control the limbs yourself.
@@ -136,7 +161,9 @@ def main():
         model=model,  # type: ignore
         data=data,
     )
-
+    #used to run without graphics
+    #simple_runner(model,data,duration=15)
+    
     show_qpos_history(HISTORY)
     # If you want to record a video of your simulation, you can use the video renderer.
 
