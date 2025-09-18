@@ -373,6 +373,13 @@ def main():
     # Run evolutionary algorithm with dimensions
     iteration_scores = []
     for i in range(3):
+        # Reset global variables for each run
+        global MUTATION_STEP_SIZE, SUCCESS_COUNTER, CURRENT_INDIVIDUAL, HISTORY
+        MUTATION_STEP_SIZE = 0.1  
+        SUCCESS_COUNTER = 0       
+        CURRENT_INDIVIDUAL = None 
+        HISTORY = []              
+        
         np.random.seed(SEED+i)
         random.seed(SEED+i)   
         best_individual, fitness_scores = evolutionary_algorithm(input_size, output_size)
