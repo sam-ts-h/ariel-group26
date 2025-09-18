@@ -157,12 +157,12 @@ def main():
 
     # This opens a viewer window and runs the simulation with the controller you defined
     # If mujoco.set_mjcb_control(None), then you can control the limbs yourself.
-    viewer.launch(
-        model=model,  # type: ignore
-        data=data,
-    )
+    # viewer.launch(
+    #     model=model,  # type: ignore
+    #     data=data,
+    # )
     #used to run without graphics
-    #simple_runner(model,data,duration=15)
+    simple_runner(model,data,duration=15)
     
     show_qpos_history(HISTORY)
     # If you want to record a video of your simulation, you can use the video renderer.
