@@ -167,7 +167,7 @@ def rank_based_selection(population: List[Individual]) -> Individual:
     # Select based on rank probabilities
     return np.random.choice(sorted_pop, p=probabilities)
 
-def evolutionary_algorithm(input_size: int, output_size: int, pop_size: int = 50, generations: int = 3):
+def evolutionary_algorithm(input_size: int, output_size: int, pop_size: int = 100, generations: int = 3):
     global MUTATION_STEP_SIZE, SUCCESS_COUNTER
     hidden_size = 8
     
@@ -391,8 +391,9 @@ def main():
     try:
         plot_fitness_over_generations(iteration_scores)
     except Exception as e:
-        print("Failed to plot fitness over generations:", e)
-    global CURRENT_INDIVIDUAL
+        print(f"Failed to plot fitness over generations: {e}")
+        
+    # Set final best individual for visualization
     CURRENT_INDIVIDUAL = best_individual
 
     PATH_TO_VIDEO_FOLDER = "./__videos__"

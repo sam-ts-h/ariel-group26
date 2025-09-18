@@ -512,8 +512,6 @@ def main():
         plot_fitness_over_generations(iteration_scores)
     except Exception as e:
         print("Failed to plot fitness over generations:", e)
-    # Final visualization with best individual
-    global CURRENT_INDIVIDUAL
     CURRENT_INDIVIDUAL = best_individual
 
     PATH_TO_VIDEO_FOLDER = "./__videos__"
