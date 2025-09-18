@@ -327,13 +327,16 @@ def evolutionary_algorithm(input_size: int, output_size: int, pop_size: int = 10
         
         # Create new population
         new_population = [best_individual]  # elitism
-        
+        for p in population:
+            new_population.append(p)
+            
         while len(new_population) < 3*pop_size:
             parent1  = rank_based_selection(population)
             parent2 = rank_based_selection(population)
             child = crossover(parent1, parent2)
             child = mutate(child)
             new_population.append(child)
+
 
         offspring_pop = [best_individual]
         while len(offspring_pop) < pop_size:
