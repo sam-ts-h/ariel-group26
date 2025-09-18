@@ -4,6 +4,9 @@ import mujoco
 from mujoco import viewer
 import matplotlib.pyplot as plt
 import time
+from datetime import datetime
+import pickle
+import os
 
 # Local libraries
 from ariel.utils.renderers import video_renderer
@@ -262,6 +265,8 @@ def show_qpos_history(history:list):
 
 
 def plot_fitness_over_generations(iterations_scores):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
     num_generations = len(iterations_scores[0])
     
     # Extract best fitness per generation for each run
@@ -276,6 +281,26 @@ def plot_fitness_over_generations(iterations_scores):
     mean_fitness = np.mean(fitness_array, axis=0)
     std_fitness = np.std(fitness_array, axis=0)
     max_fitness = np.max(fitness_array, axis=0) 
+    
+    # Save data to file with timestamp
+    data_filename = f"data_{timestamp}.pkl"
+    data_to_save = {
+        'iterations_scores': iterations_scores,
+        'best_fitness_per_run': best_fitness_per_run,
+        'fitness_array': fitness_array,
+        'mean_fitness': mean_fitness,
+        'std_fitness': std_fitness,
+        'max_fitness': max_fitness,
+        'num_generations': num_generations,
+        'timestamp': timestamp
+    }
+    
+    # Create directory if it doesn't exist
+    os.makedirs('results', exist_ok=True)
+    
+    with open(os.path.join('results', data_filename), 'wb') as f:
+        pickle.dump(data_to_save, f)
+    print(f"Data saved to: results/{data_filename}")
     
     # Create the plot
     plt.figure(figsize=(12, 8))
@@ -322,6 +347,12 @@ def plot_fitness_over_generations(iterations_scores):
              bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
     plt.tight_layout()
+    
+    # Save plot to file with timestamp
+    plot_filename = f"plots_{timestamp}.png"
+    plt.savefig(os.path.join('results', plot_filename), dpi=300, bbox_inches='tight')
+    print(f"Plot saved to: results/{plot_filename}")
+    
     plt.show()
 
 def main():

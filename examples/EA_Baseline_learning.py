@@ -13,6 +13,9 @@ from ariel.body_phenotypes.robogen_lite.prebuilt_robots.gecko import gecko
 from dataclasses import dataclass
 import random
 from typing import List, Tuple
+from datetime import datetime
+import pickle
+import os
 
 #seed so all runs are the same (everytime)
 SEED = 42
@@ -372,6 +375,8 @@ def show_qpos_history(history:list):
 
 
 def plot_fitness_over_generations(iterations_scores):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
     num_generations = len(iterations_scores[0])
     
     # Extract best fitness per generation for each run
@@ -380,18 +385,36 @@ def plot_fitness_over_generations(iterations_scores):
         run_best = [max(generation_scores) for generation_scores in run_scores]
         best_fitness_per_run.append(run_best)
     
-    # Convert to numpy array for statistics
-    fitness_array = np.array(best_fitness_per_run)
+    fitness_array = np.array(best_fitness_per_run)  
     
-    # Calculate statistics across runs
+    # Calculate mean, std and max for all runs
     mean_fitness = np.mean(fitness_array, axis=0)
     std_fitness = np.std(fitness_array, axis=0)
-    max_fitness = np.max(fitness_array, axis=0)
+    max_fitness = np.max(fitness_array, axis=0) 
+    
+    # Save data to file with timestamp
+    data_filename = f"data_{timestamp}.pkl"
+    data_to_save = {
+        'iterations_scores': iterations_scores,
+        'best_fitness_per_run': best_fitness_per_run,
+        'fitness_array': fitness_array,
+        'mean_fitness': mean_fitness,
+        'std_fitness': std_fitness,
+        'max_fitness': max_fitness,
+        'num_generations': num_generations,
+        'timestamp': timestamp
+    }
+    
+    # Create directory if it doesn't exist
+    os.makedirs('results', exist_ok=True)
+    
+    with open(os.path.join('results', data_filename), 'wb') as f:
+        pickle.dump(data_to_save, f)
+    print(f"Data saved to: results/{data_filename}")
     
     # Create the plot
     plt.figure(figsize=(12, 8))
     
-    # Generation numbers
     generations = np.arange(num_generations)
     
     # Plot mean line
@@ -407,7 +430,7 @@ def plot_fitness_over_generations(iterations_scores):
             linestyle='--',
             label='Max across runs')
     
-    # Add standard deviation as shaded area
+    # Plot std area
     plt.fill_between(generations, 
                      mean_fitness - std_fitness, 
                      mean_fitness + std_fitness,
@@ -422,6 +445,7 @@ def plot_fitness_over_generations(iterations_scores):
     plt.grid(True, alpha=0.3)
     plt.legend(loc='best')
     
+    # Add statistics as text
     final_mean = mean_fitness[-1]
     final_std = std_fitness[-1]
     final_max = max_fitness[-1]
@@ -433,6 +457,12 @@ def plot_fitness_over_generations(iterations_scores):
              bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
     plt.tight_layout()
+    
+    # Save plot to file with timestamp
+    plot_filename = f"plots_{timestamp}.png"
+    plt.savefig(os.path.join('results', plot_filename), dpi=300, bbox_inches='tight')
+    print(f"Plot saved to: results/{plot_filename}")
+    
     plt.show()
 
 def main():
