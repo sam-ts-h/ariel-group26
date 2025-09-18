@@ -467,7 +467,16 @@ def main():
     global CURRENT_INDIVIDUAL
     CURRENT_INDIVIDUAL = best_individual
 
-    viewer.launch(model=model, data=data)
+    PATH_TO_VIDEO_FOLDER = "./__videos__"
+    video_recorder = VideoRecorder(output_folder=PATH_TO_VIDEO_FOLDER)
+
+    # Render with video recorder
+    video_renderer(
+        model,
+        data,
+        duration=30,
+        video_recorder=video_recorder,
+    )
     show_qpos_history(HISTORY)
 
 
